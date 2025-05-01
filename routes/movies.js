@@ -4,25 +4,25 @@ const db = require('../db');
 
 // POST /api/movies with pagination and search
 router.post('/', async (req, res) => {
-    const { start = 0, limit = 10, search_query = '' } = req.body;
-  
-    try {
-      let query = 'SELECT * FROM movies WHERE 1=1';
-      const values = [];
-  
-      if (search_query.trim() !== '') {
-        query += ' AND name LIKE ?';
-        values.push(`%${search_query}%`);
-      }
-  
-      query += ' ORDER BY id DESC LIMIT ?, ?';
-      values.push(Number(start), Number(limit));
-  
-      const [movies] = await db.query(query, values);
-      res.json(movies);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  const { start = 0, limit = 10, search_query = '' } = req.body;
+
+  try {
+    let query = 'SELECT * FROM movies WHERE 1=1';
+    const values = [];
+
+    if (search_query.trim() !== '') {
+      query += ' AND name LIKE ?';
+      values.push(`%${search_query}%`);
     }
+
+    query += ' ORDER BY id DESC LIMIT ?, ?';
+    values.push(Number(start), Number(limit));
+
+    const [movies] = await db.query(query, values);
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET movie by ID (with links, genres, tags)
