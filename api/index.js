@@ -1,4 +1,4 @@
-const serverless = require('vercel-serverless-express');
+const serverless = require('@vendia/serverless-express');
 const express = require('express');
 require('dotenv').config();
 
