@@ -26,11 +26,11 @@ app.use('/api/filters', authMiddleware, filtersRoutes);
 app.use('/api/auth', authMiddleware, authRoutes);
 
 // For local development
-if (process.env.NODE_ENV !== 'production') {
+// if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
   });
-}
+// }
 
 // Export the Express API for Vercel
 module.exports = app;
