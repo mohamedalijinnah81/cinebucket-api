@@ -2,43 +2,47 @@
 require('dotenv').config();
 
 /**
- * Middleware to verify API key or Bearer token
- * Supports both:
- * - API Key in header: X-API-Key: your-api-key
+ * Middleware to verify:
+ * - RapidAPI Proxy Secret
+ * - API Key: X-API-Key
  * - Bearer token: Authorization: Bearer your-token
  */
 function authMiddleware(req, res, next) {
-  // Get token from header
-  const bearerHeader = req.headers.authorization;
+  const rapidApiSecret = req.headers['x-rapidapi-proxy-secret'];
   const apiKey = req.headers['x-api-key'];
-  
-  // Check for API Key first
+  const bearerHeader = req.headers.authorization;
+
+  // 1. Allow if request comes from RapidAPI
+  if (rapidApiSecret === '6f835d00-34cf-11f0-a197-633c70986272') {
+    return next();
+  }
+
+  // 2. Check for API Key
   if (apiKey) {
     if (apiKey === process.env.API_KEY) {
-      next(); // API Key is valid
+      return next(); // Valid API Key
     } else {
       return res.status(403).json({ error: 'Invalid API key' });
     }
-  } 
-  // Then check for Bearer token
-  else if (bearerHeader) {
-    const bearer = bearerHeader.split(' ');
-    if (bearer.length !== 2 || bearer[0] !== 'Bearer') {
+  }
+
+  // 3. Check for Bearer Token
+  if (bearerHeader) {
+    const parts = bearerHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
       return res.status(403).json({ error: 'Invalid token format' });
     }
-    
-    const token = bearer[1];
-    
-    // Verify the token
+
+    const token = parts[1];
     if (token === process.env.API_TOKEN) {
-      next(); // Token is valid
+      return next(); // Valid Token
     } else {
       return res.status(403).json({ error: 'Invalid token' });
     }
-  } else {
-    // No authentication provided
-    return res.status(401).json({ error: 'Authentication required' });
   }
+
+  // 4. If no auth method matched
+  return res.status(401).json({ error: 'Authentication required' });
 }
 
 module.exports = authMiddleware;
